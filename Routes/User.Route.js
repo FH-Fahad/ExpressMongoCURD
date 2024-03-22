@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 
 const User = require("../Database/User.Schema");
 
+
+// Create a user
 router.post("/", async (req, res) => {
     const { fname, lname, email, phone, password, userType, status } = req.body;
 
@@ -35,6 +37,7 @@ router.post("/", async (req, res) => {
     }
 })
 
+// Get all user
 router.get("/", async (req, res) => {
     try {
         const allUser = await User.find();
@@ -47,10 +50,12 @@ router.get("/", async (req, res) => {
     }
 })
 
+// Get a specific user
 router.get("/:id", isUser, async (req, res) => {
     res.json(res.user);
 })
 
+// Delete a user
 router.delete("/:id", isUser, async (req, res) => {
     try {
         await res.user.deleteOne();
@@ -60,6 +65,7 @@ router.delete("/:id", isUser, async (req, res) => {
     }
 })
 
+// Update a user
 router.patch("/:id", isUser, async (req, res) => {
     if (req.body.email != null) {
         return res.status(404).json({ message: "Email cannot be updated" })
@@ -92,29 +98,7 @@ router.patch("/:id", isUser, async (req, res) => {
     }
 })
 
-router.get("/page/:id", async (req, res) => {
-    let page = parseInt(req.params.id);
-    if (page < 1) page = 1;
-
-    let limit = 3;
-    let skip = (page - 1) * limit;
-
-    try {
-        const users = await User.find().skip(skip).limit(limit);
-        const totalUsers = await User.countDocuments();
-
-        const totalPages = Math.ceil(totalUsers / limit);
-
-        res.status(200).json({
-            totalPages,
-            message: `Showing users for page ${page}`,
-            users
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-})
-
+// Middleware function to get the correct user
 async function isUser(req, res, next) {
     let user;
     try {
