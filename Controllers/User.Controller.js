@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
-const User = require("../Database/User.Schema");
+const User = require("../Models/User.Schema");
 
 // Create a user
 router.post("/", async (req, res) => {

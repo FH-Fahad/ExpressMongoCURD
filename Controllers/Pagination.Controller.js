@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const User = require("../Database/User.Schema");
+const User = require("../Models/User.Schema");
 
 // Pagination with query parameter
 router.get("/page", async (req, res) => {
