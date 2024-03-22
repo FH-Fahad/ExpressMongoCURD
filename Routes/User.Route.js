@@ -4,12 +4,17 @@ const bcrypt = require("bcrypt");
 
 const User = require("../Database/User.Schema");
 
-
 // Create a user
 router.post("/", async (req, res) => {
     const { fname, lname, email, phone, password, userType, status } = req.body;
 
     try {
+        const userStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+        if (!["Active", "Away"].includes(userStatus)) {
+            return res.status(400).json({ error: "Invalid status value. Choose from Active and Away" });
+        }
+
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -24,7 +29,7 @@ router.post("/", async (req, res) => {
             phone,
             password: hashedPassword,
             userType,
-            status,
+            status: userStatus,
         });
 
         const savedUser = await user.save();
@@ -43,8 +48,10 @@ router.get("/", async (req, res) => {
         const allUser = await User.find();
 
         const totalUser = allUser.length;
+        const away = await User.countDocuments({ status: "Away" })
+        const active = await User.countDocuments({ status: "Active" })
 
-        res.status(200).json({ message: "All user", totalUser, allUser });
+        res.status(200).json({ message: "All user", totalUser, away, active, allUser });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -83,7 +90,12 @@ router.patch("/:id", isUser, async (req, res) => {
         res.user.userType = req.body.userType;
     }
     if (req.body.status != null) {
-        res.user.status = req.body.status;
+        const userStatus = req.body.status.charAt(0).toUpperCase() + req.body.status.slice(1).toLowerCase();
+
+        if (!["Active", "Away"].includes(userStatus)) {
+            return res.status(400).json({ error: "Invalid status value. Choose from Active and Away" });
+        }
+        res.user.status = userStatus;
     }
     if (req.body.password != null) {
         let hashedPassword = await bcrypt.hash(req.body.password, 10);

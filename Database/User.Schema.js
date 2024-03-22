@@ -6,7 +6,7 @@ const UserSchema = new Schema({
         type: String,
         require: true,
     },
-    lname: { 
+    lname: {
         type: String,
         require: true,
     },
@@ -30,6 +30,7 @@ const UserSchema = new Schema({
     status: {
         type: String,
         require: true,
+        enum: ["Active", "Away"]
     }
 }, {
     timestamps: true,
